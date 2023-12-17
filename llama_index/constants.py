@@ -27,3 +27,5 @@ IMAGE_STORE_KEY = "image_store"
 GRAPH_STORE_KEY = "graph_store"
 INDEX_STORE_KEY = "index_store"
 DOC_STORE_KEY = "doc_store"
+
+# Tier 2 rate limits.

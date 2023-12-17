@@ -278,3 +278,26 @@ class PromptHelper(BaseComponent):
         )
         combined_str = "\n\n".join([c.strip() for c in text_chunks if c.strip()])
         return text_splitter.split_text(combined_str)
+
+    def repackIntoBatches(
+        self,
+        prompt: BasePromptTemplate,
+        text_chunks: Sequence[str],
+        padding: int = DEFAULT_PADDING,
+        max_tokens_per_batch: int = 60000,
+        llm: Optional[LLM] = None,
+    ) -> List[List[str]]:
+        """Repack text chunks to fit available context window.
+
+        This will combine text chunks into consolidated chunks
+        that more fully "pack" the prompt template given the context_window.
+
+        """
+        text_splitter = self.get_text_splitter_given_prompt(
+            prompt,padding=padding, llm=llm,
+        )
+        combined_str = "\n\n".join([c.strip() for c in text_chunks if c.strip()])
+        # TODO: implement a new split_text method that provides list of lists.
+        #  such the sum of each list's tokens don't exceed the rate limit.
+        return text_splitter.split_text_into_batches(
+            combined_str,  max_tokens_per_batch=max_tokens_per_batch)

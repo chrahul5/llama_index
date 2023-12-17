@@ -122,6 +122,29 @@ class TokenTextSplitter(MetadataAwareTextSplitter):
 
         return self._split_text(text, chunk_size=effective_chunk_size)
 
+    def split_text_into_batches(self, text: str,
+        max_tokens_per_batch: int = 6000) -> List[List[str]]:
+        """Split text into list of chunks, each within range."""
+        splits = self._split_text(text, chunk_size=self.chunk_size)
+
+        batches = []
+        current_batch = []
+        current_token_count = 0
+
+        for ii, text_chunk in enumerate(splits):
+            chunk_token_count = len(self._tokenizer(text_chunk))
+            if current_token_count + chunk_token_count > max_tokens_per_batch:
+                batches.append(current_batch)
+                current_batch = [text_chunk]
+                current_token_count = chunk_token_count
+            else:
+                current_batch.append(text_chunk)
+                current_token_count += chunk_token_count
+
+        if current_batch:
+            batches.append(current_batch)
+        return batches
+
     def split_text(self, text: str) -> List[str]:
         """Split text into chunks."""
         return self._split_text(text, chunk_size=self.chunk_size)
